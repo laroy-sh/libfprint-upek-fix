@@ -66,4 +66,4 @@ sudo apt remove --autoremove dpkg-dev devscripts build-essential \
 ## Related
 
 - Upstream commit: `cdc22b45` in [libfprint](https://gitlab.freedesktop.org/libfprint/libfprint)
-- Ubuntu Launchpad bug: *(link TBD)*
+- Ubuntu Launchpad bug: [#2145103](https://bugs.launchpad.net/ubuntu/+source/libfprint/+bug/2145103)
