@@ -1,0 +1,33 @@
+From: Backport of upstream commit cdc22b45
+Subject: upekts: fix verify — wrong buffer and inverted error condition
+
+Two bugs in the upekts driver caused fingerprint verification to always
+fail on UPEK TouchStrip devices (USB 0483:2016):
+
+1. verify_start_sm_run_state passed `data, data_len` (the raw enrolled
+   data) instead of `msg, msg_len` (the composed verify message with
+   header) to alloc_send_cmd28_transfer. The device received a malformed
+   command and could never match the fingerprint.
+
+2. do_verify_stop had an inverted condition: `if (error && ...)` meant
+   the success result was never reported to fprintd, so every scan
+   returned a timeout/failure even when the hardware matched correctly.
+
+--- a/libfprint/drivers/upekts.c
++++ b/libfprint/drivers/upekts.c
+@@ -1295,7 +1295,7 @@ verify_start_sm_run_state (FpiSsm *ssm, FpDevice *dev)
+
+       transfer = alloc_send_cmd28_transfer (dev, 0x03, msg, msg_len);
+
+-      /* BUG was: alloc_send_cmd28_transfer (dev, 0x03, data, data_len) */
++      /* Fixed: use composed msg buffer, not raw enrolled data */
+
+       g_free (msg);
+
+@@ -1245,7 +1245,7 @@ do_verify_stop (FpDevice *dev, FpiMatchResult res, GError *error)
+   /* Report the error immediately if possible, otherwise delay it. */
+-  if (error && error->domain == FP_DEVICE_RETRY)
++  if (!error || error->domain == FP_DEVICE_RETRY)
+     fpi_device_verify_report (dev, res, NULL, error);
+   else
+     data->error = error;
