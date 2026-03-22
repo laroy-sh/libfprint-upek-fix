@@ -35,7 +35,9 @@ The script will:
 2. Download the Ubuntu `libfprint` source package
 3. Apply both patches to `upekts.c`
 4. Build and install patched `.deb` packages
-5. Restart `fprintd`
+5. Verify library dependencies are intact
+6. **Hold both packages** with `apt-mark hold` to prevent auto-upgrades from reverting the fix
+7. Restart `fprintd`
 
 Then test with:
 ```bash
@@ -51,10 +53,34 @@ fprintd-enroll -f right-index-finger $(whoami)
 
 Clean up build dependencies (~170 packages):
 ```bash
-sudo apt remove --autoremove dpkg-dev devscripts build-essential \
+sudo apt remove --autoremove dpkg-dev devscripts build-essential debhelper \
   libglib2.0-dev libgusb-dev libgudev-1.0-dev libnss3-dev gi-docgen \
-  gir1.2-gusb-1.0 gobject-introspection libgirepository1.0-dev
+  gir1.2-gusb-1.0 gobject-introspection libgirepository1.0-dev \
+  gtk-doc-tools libcairo2-dev umockdev libglib2.0-doc libgusb-doc
 ```
+
+## If the fix gets reverted by a system update
+
+Ubuntu may upgrade the held packages if you run `apt full-upgrade` and confirm explicitly. Check with:
+```bash
+apt-mark showhold | grep fprint
+```
+
+If the packages are no longer held, re-run `fix-libfprint.sh`.
+
+## Emergency rollback
+
+If GUI login stops working after applying the fix:
+
+1. Switch to a TTY: **Ctrl+Alt+F3**
+2. Log in with your password
+3. Restore the official packages:
+```bash
+sudo dpkg -i ~/Projects/libfprint-upek-fix/rollback/*.deb
+sudo systemctl restart fprintd
+```
+
+> The `rollback/` directory contains official Ubuntu `.deb` files downloaded before patching. Re-populate with `apt download libfprint-2-2 libfprint-2-tod1` if needed.
 
 ## Files
 
@@ -62,6 +88,8 @@ sudo apt remove --autoremove dpkg-dev devscripts build-essential \
 |------|-------------|
 | `fix-libfprint.sh` | Automated fix script |
 | `upekts-fix-verify.patch` | The two-line patch for reference |
+| `rollback/` | Official Ubuntu `.deb` files for emergency rollback |
+| `TROUBLESHOOTING-2026-03-22.md` | Incident history and detailed recovery steps |
 
 ## Related
 
