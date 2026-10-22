@@ -16,7 +16,7 @@ Two bugs in `libfprint/drivers/upekts.c` (present in Ubuntu's packaged `libfprin
 
 2. **Inverted error condition** in `do_verify_stop`: `if (error && error->domain == FP_DEVICE_RETRY)` should be `if (!error || error->domain == FP_DEVICE_RETRY)`. The success result was never reported to fprintd.
 
-Backport of upstream commit `cdc22b45`.
+Backport of upstream commit [`cdc22b45`](https://gitlab.freedesktop.org/libfprint/libfprint/-/commit/cdc22b45), merged via [MR !415](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/415) and first released in libfprint **v1.94.9** (2025-02-20). Ubuntu 24.04 still ships `1.94.7+tod1`, so this backport remains necessary until an SRU lands.
 
 ## Affected hardware
 
@@ -89,9 +89,10 @@ sudo systemctl restart fprintd
 | `fix-libfprint.sh` | Automated fix script |
 | `upekts-fix-verify.patch` | The two-line patch for reference |
 | `rollback/` | Official Ubuntu `.deb` files for emergency rollback |
-| `TROUBLESHOOTING-2026-03-22.md` | Incident history and detailed recovery steps |
 
 ## Related
 
-- Upstream commit: `cdc22b45` in [libfprint](https://gitlab.freedesktop.org/libfprint/libfprint)
+- Upstream merge request: [libfprint!415 "upekts fixes"](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/415) (merged 2025-02-13)
+- Upstream commit: [`cdc22b45`](https://gitlab.freedesktop.org/libfprint/libfprint/-/commit/cdc22b45) ("upekts: fix verify")
+- First upstream release with fix: [v1.94.9](https://gitlab.freedesktop.org/libfprint/libfprint/-/releases/v1.94.9) (2025-02-20)
 - Ubuntu Launchpad bug: [#2145103](https://bugs.launchpad.net/ubuntu/+source/libfprint/+bug/2145103)

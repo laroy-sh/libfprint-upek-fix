@@ -1,0 +1,75 @@
+diff -Nru libfprint-1.94.7+tod1/debian/changelog libfprint-1.94.7+tod1/debian/changelog
+--- libfprint-1.94.7+tod1/debian/changelog	2026-07-01 13:00:19.000000000 +0200
++++ libfprint-1.94.7+tod1/debian/changelog	2026-07-12 18:21:18.000000000 +0200
+@@ -1,3 +1,14 @@
++libfprint (1:1.94.7+tod1-0ubuntu5~24.04.9) noble; urgency=medium
++
++  * Backport upstream fix for UPEK TouchStrip verify (LP: #2145103).
++    - debian/patches/upekts-fix-verify.patch: cherry-pick upstream commit
++      cdc22b45 (MR !415, released in libfprint 1.94.9) fixing two defects
++      in drivers/upekts.c: wrong buffer passed to the cmd28 transfer, and
++      inverted error check in do_verify_stop. Fingerprint verify now
++      works on UPEK TouchStrip (USB 0483:2016) on Ubuntu 24.04.
++
++ -- Laroy <25833114+laroy-sh@users.noreply.github.com>  Sun, 12 Jul 2026 18:21:18 +0200
++
+ libfprint (1:1.94.7+tod1-0ubuntu5~24.04.8) noble; urgency=medium
+ 
+   * d/p/fpi-bytes-{writer,reader}: backport fixes needed by egis_etu905 driver
+diff -Nru libfprint-1.94.7+tod1/debian/patches/series libfprint-1.94.7+tod1/debian/patches/series
+--- libfprint-1.94.7+tod1/debian/patches/series	2026-07-01 13:00:19.000000000 +0200
++++ libfprint-1.94.7+tod1/debian/patches/series	2026-07-12 18:21:00.000000000 +0200
+@@ -30,3 +30,4 @@
+ egis_etu905-move-commands-into-read-only-memory.patch
+ egis_etu905-Use-little-endian-commit-data-in-all-the-arch.patch
+ goodixmoc-Fixed-inconsistent-enrollment-progress-when-swi.patch
++upekts-fix-verify.patch
+diff -Nru libfprint-1.94.7+tod1/debian/patches/upekts-fix-verify.patch libfprint-1.94.7+tod1/debian/patches/upekts-fix-verify.patch
+--- libfprint-1.94.7+tod1/debian/patches/upekts-fix-verify.patch	1970-01-01 01:00:00.000000000 +0100
++++ libfprint-1.94.7+tod1/debian/patches/upekts-fix-verify.patch	2026-07-12 18:20:34.000000000 +0200
+@@ -0,0 +1,45 @@
++Description: upekts: fix verify — wrong buffer and inverted error condition
++ Two defects in the upekts driver cause fingerprint verification to always
++ fail on UPEK TouchStrip devices (USB 0483:2016 and siblings).
++ .
++ 1. verify_start_sm_run_state passes the raw enrolled data (data, data_len)
++    to alloc_send_cmd28_transfer instead of the composed verify message
++    (msg, msg_len) that has just been built with verify_hdr. The device
++    therefore receives a malformed command and can never match.
++ .
++ 2. do_verify_stop has an inverted error check:
++    `if (error && error->domain == FP_DEVICE_RETRY)` means that on success
++    (error == NULL) the match result is never reported to fprintd, so every
++    verify attempt is observed as a timeout/failure even when the hardware
++    matched correctly.
++ .
++ Both issues are fixed upstream in commit cdc22b45 (MR !415), first
++ released in libfprint 1.94.9.
++Origin: upstream, https://gitlab.freedesktop.org/libfprint/libfprint/-/commit/cdc22b45
++Bug: https://gitlab.freedesktop.org/libfprint/libfprint/-/issues/321
++Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/libfprint/+bug/2145103
++Forwarded: not-needed
++Applied-Upstream: 1.94.9, https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/415
++Author: Reid Rankin <reidrankin@gmail.com>
++Last-Update: 2026-04-23
++
++--- libfprint-1.94.7+tod1.orig/libfprint/drivers/upekts.c
+++++ libfprint-1.94.7+tod1/libfprint/drivers/upekts.c
++@@ -1243,7 +1243,7 @@ do_verify_stop (FpDevice *dev, FpiMatchR
++   FpiSsm *ssm = deinitsm_new (dev, data);
++
++   /* Report the error immediately if possible, otherwise delay it. */
++-  if (error && error->domain == FP_DEVICE_RETRY)
+++  if (!error || error->domain == FP_DEVICE_RETRY)
++     fpi_device_verify_report (dev, res, NULL, error);
++   else
++     data->error = error;
++@@ -1295,7 +1295,7 @@ verify_start_sm_run_state (FpiSsm *ssm,
++       memcpy (msg, verify_hdr, sizeof (verify_hdr));
++       memcpy (msg + sizeof (verify_hdr), data, data_len);
++
++-      transfer = alloc_send_cmd28_transfer (dev, 0x03, data, data_len);
+++      transfer = alloc_send_cmd28_transfer (dev, 0x03, msg, msg_len);
++
++       g_free (msg);
++
