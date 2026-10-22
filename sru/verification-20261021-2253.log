@@ -1,0 +1,83 @@
+== LP #2145103 verification, 2026-10-21T22:53:49+02:00
+Ubuntu 24.04.5 LTS
+7.0.0-31-generic
+Bus 003 Device 002: ID 0483:2016 STMicroelectronics Fingerprint Reader
+ii  fprintd                1.94.3-1                       amd64        D-Bus daemon for fingerprint reader access
+ii  libfprint-2-2          1:1.94.7+tod1-0ubuntu5~24.04.9 amd64        async fingerprint library of fprint project, shared libraries
+ii  libfprint-2-tod1:amd64 1:1.94.7+tod1-0ubuntu5~24.04.9 amd64        async fingerprint library of fprint project, drivers shared libraries
+
+== Step 1: re-enrol right-index-finger (old prints deleted first)
+found 1 devices
+Device at /net/reactivated/Fprint/Device/0
+Using device /net/reactivated/Fprint/Device/0
+Fingerprints of user laroy deleted on UPEK TouchStrip
+Using device /net/reactivated/Fprint/Device/0
+Enrolling right-index-finger finger.
+Enroll result: enroll-finger-not-centered
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-finger-not-centered
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-finger-not-centered
+Enroll result: enroll-finger-not-centered
+Enroll result: enroll-finger-not-centered
+Enroll result: enroll-finger-not-centered
+Enroll result: enroll-finger-not-centered
+Enroll result: enroll-finger-not-centered
+Enroll result: enroll-finger-not-centered
+Enroll result: enroll-finger-not-centered
+Enroll result: enroll-finger-not-centered
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-finger-not-centered
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-swipe-too-short
+Enroll result: enroll-stage-passed
+Enroll result: enroll-stage-passed
+Enroll result: enroll-finger-not-centered
+Enroll result: enroll-completed
+
+== Step 2-3: 10 verify attempts with the enrolled finger
+-- attempt 1/10: swipe right-index-finger
+Verify result: verify-match (done)
+-- attempt 2/10: swipe right-index-finger
+Verify result: verify-unknown-error (done)
+-- attempt 3/10: swipe right-index-finger
+Verify result: verify-unknown-error (done)
+-- attempt 4/10: swipe right-index-finger
+Verify result: verify-unknown-error (done)
+-- attempt 5/10: swipe right-index-finger
+Verify result: verify-match (done)
+-- attempt 6/10: swipe right-index-finger
+Verify result: verify-match (done)
+-- attempt 7/10: swipe right-index-finger
+Verify result: verify-no-match (done)
+-- attempt 8/10: swipe right-index-finger
+Verify result: verify-match (done)
+-- attempt 9/10: swipe right-index-finger
+Verify result: verify-match (done)
+-- attempt 10/10: swipe right-index-finger
+Verify result: verify-match (done)
+RESULT positive: 6/10 matched
+
+== Step 4: negative test, swipe a DIFFERENT (non-enrolled) finger
+Press Enter, then swipe a non-enrolled finger... Verify result: verify-unknown-error (done)
+RESULT negative: UNEXPECTED, see output above
+
+Log saved to sru/verification-20261021-2253.log
+Step 5: confirm sudo/login fingerprint auth works end-to-end by hand.

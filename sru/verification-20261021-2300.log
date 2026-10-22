@@ -1,0 +1,43 @@
+== LP #2145103 verification, 2026-10-21T23:00:11+02:00
+Ubuntu 24.04.5 LTS
+7.0.0-31-generic
+Bus 003 Device 002: ID 0483:2016 STMicroelectronics Fingerprint Reader
+ii  fprintd                1.94.3-1                       amd64        D-Bus daemon for fingerprint reader access
+ii  libfprint-2-2          1:1.94.7+tod1-0ubuntu5~24.04.9 amd64        async fingerprint library of fprint project, shared libraries
+ii  libfprint-2-tod1:amd64 1:1.94.7+tod1-0ubuntu5~24.04.9 amd64        async fingerprint library of fprint project, drivers shared libraries
+
+== Step 1: skipped (SKIP_ENROLL set), using existing enrolment
+
+== Step 2-3: 10 verify attempts with the enrolled finger
+-- attempt 1/10: press Enter, then swipe right-index-finger...    23:00:17
+Verify result: verify-match (done)
+-- attempt 2/10: press Enter, then swipe right-index-finger...    23:00:30
+Verify result: verify-match (done)
+-- attempt 3/10: press Enter, then swipe right-index-finger...    23:00:37
+Verify result: verify-match (done)
+-- attempt 4/10: press Enter, then swipe right-index-finger...    23:00:43
+Verify result: verify-match (done)
+-- attempt 5/10: press Enter, then swipe right-index-finger...    23:00:49
+Verify result: verify-match (done)
+-- attempt 6/10: press Enter, then swipe right-index-finger...    23:00:54
+Verify result: verify-match (done)
+-- attempt 7/10: press Enter, then swipe right-index-finger...    23:01:00
+Verify result: verify-no-match (done)
+-- attempt 8/10: press Enter, then swipe right-index-finger...    23:01:06
+Verify result: verify-match (done)
+-- attempt 9/10: press Enter, then swipe right-index-finger...    23:01:12
+Verify result: verify-match (done)
+-- attempt 10/10: press Enter, then swipe right-index-finger...    23:01:18
+Verify result: verify-match (done)
+RESULT positive: 9/10 matched
+
+== Step 4: negative test, swipe a DIFFERENT (non-enrolled) finger
+Press Enter, then swipe a non-enrolled finger...    23:01:26
+Verify result: verify-no-match (done)
+RESULT negative: no-match (expected)
+
+== fprintd journal for this run
+-- No entries --
+
+Log saved to sru/verification-20261021-2300.log
+Step 5: confirm sudo/login fingerprint auth works end-to-end by hand.
